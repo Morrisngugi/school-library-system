@@ -90,6 +90,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const fetchUser = async () => {
+    try {
+      const response = await authService.getMe()
+      user.value = response.data
+      localStorage.setItem('user', JSON.stringify(response.data))
+      return response
+    } catch (err) {
+      error.value = err.response?.data?.error || 'Failed to fetch user data'
+      throw err
+    }
+  }
+
   // Check auth on store initialization
   checkAuth()
 
@@ -108,6 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     logout,
-    updateProfile
+    updateProfile,
+    fetchUser
   }
 })

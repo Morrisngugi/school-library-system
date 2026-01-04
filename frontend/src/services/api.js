@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+// Use environment variable for API URL, fallback to local
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1'
+
 const apiClient = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }

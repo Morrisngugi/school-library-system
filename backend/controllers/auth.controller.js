@@ -11,6 +11,22 @@ exports.register = asyncHandler(async (req, res, next) => {
   // Generate membership ID
   const membershipId = `MEM${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
+  // Auto-generate simple IDs if not provided
+  let finalStudentId = studentId;
+  let finalStaffId = staffId;
+  
+  if (!finalStudentId && (!role || role === 'student')) {
+    // Generate simple student ID: STU + count
+    const studentCount = await User.countDocuments({ role: 'student' });
+    finalStudentId = `STU${String(studentCount + 1).padStart(4, '0')}`;
+  }
+  
+  if (!finalStaffId && (role === 'teacher' || role === 'librarian')) {
+    // Generate simple staff ID: STAFF + count
+    const staffCount = await User.countDocuments({ role: { $in: ['teacher', 'librarian', 'admin'] } });
+    finalStaffId = `STAFF${String(staffCount + 1).padStart(4, '0')}`;
+  }
+
   // Create user
   const user = await User.create({
     firstName,
@@ -20,8 +36,8 @@ exports.register = asyncHandler(async (req, res, next) => {
     phone,
     role: role || 'student',
     membershipId,
-    studentId,
-    staffId,
+    studentId: finalStudentId,
+    staffId: finalStaffId,
     class: userClass,
     department
   });

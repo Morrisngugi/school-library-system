@@ -332,7 +332,7 @@ const loading = ref(true)
 const myFines = ref([])
 
 const activeLoans = computed(() => {
-  return circulationStore.myLoans.filter(loan => loan.status === 'borrowed')
+  return circulationStore.myLoans.filter(loan => loan.status === 'active' || loan.status === 'overdue')
 })
 
 const overdueLoans = computed(() => {
@@ -348,6 +348,8 @@ const totalFines = computed(() => {
 const fetchData = async () => {
   try {
     loading.value = true
+    // Fetch fresh user data to get updated currentBooksCount
+    await authStore.fetchUser()
     await Promise.all([
       circulationStore.fetchMyLoans(),
       fetchMyFines(),
@@ -389,7 +391,9 @@ const handleRenewBook = async (transactionId) => {
 
 const getBookCover = (book) => {
   if (book?.coverImage) {
-    return `http://localhost:5000/${book.coverImage}`
+    const baseURL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'
+    const imagePath = book.coverImage.startsWith('/') ? book.coverImage : `/${book.coverImage}`
+    return `${baseURL}${imagePath}`
   }
   return 'https://via.placeholder.com/150x200?text=No+Cover'
 }

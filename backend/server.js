@@ -38,9 +38,32 @@ app.use(helmet({
   },
 }));
 
-// CORS configuration
+// CORS configuration - Allow ngrok URLs
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:3000', 
+  'http://localhost:3000',
+  /^https:\/\/.*\.ngrok-free\.app$/, // Allow all ngrok URLs
+  /^https:\/\/.*\.ngrok\.io$/ // Allow old ngrok URLs
+];
+
 app.use(cors({
-  origin: [process.env.CLIENT_URL || 'http://localhost:3000', 'http://localhost:3000'],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return allowedOrigin === origin;
+      }
+      return allowedOrigin.test(origin);
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   exposedHeaders: ['Content-Length', 'Content-Type']
 }));

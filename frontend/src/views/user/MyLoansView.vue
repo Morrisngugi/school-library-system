@@ -276,10 +276,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useCirculationStore } from '@/stores/circulation'
+import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const circulationStore = useCirculationStore()
+const authStore = useAuthStore()
 
 const activeTab = ref('active')
 const loading = ref(true)
@@ -287,7 +289,7 @@ const loading = ref(true)
 const allLoans = computed(() => circulationStore.myLoans || [])
 
 const activeLoans = computed(() => {
-  return allLoans.value.filter(loan => loan.status === 'borrowed')
+  return allLoans.value.filter(loan => loan.status === 'active' || loan.status === 'overdue')
 })
 
 const historyLoans = computed(() => {
@@ -301,6 +303,8 @@ const overdueLoans = computed(() => {
 const fetchData = async () => {
   try {
     loading.value = true
+    // Fetch fresh user data to get updated currentBooksCount
+    await authStore.fetchUser()
     await circulationStore.fetchMyLoans()
   } catch (error) {
     console.error('Error fetching loans:', error)
@@ -323,7 +327,9 @@ const handleRenewBook = async (transactionId) => {
 
 const getBookCover = (book) => {
   if (book?.coverImage) {
-    return `http://localhost:5000/${book.coverImage}`
+    const baseURL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'
+    const imagePath = book.coverImage.startsWith('/') ? book.coverImage : `/${book.coverImage}`
+    return `${baseURL}${imagePath}`
   }
   return 'https://via.placeholder.com/150x200?text=No+Cover'
 }

@@ -44,23 +44,31 @@
                   {{ book.availableCopies }} of {{ book.totalCopies }} copies available
                 </p>
               </div>
-              <div v-if="isAuthenticated && (authStore.isStudent || authStore.isTeacher)" class="space-x-2">
-                <button
-                  v-if="book.availableCopies > 0"
-                  @click="handleRequestBorrow"
-                  class="btn btn-primary"
-                  :disabled="requesting"
-                >
-                  {{ requesting ? 'Requesting...' : 'Request to Borrow' }}
-                </button>
-                <button
-                  v-else
-                  @click="handleReserve"
-                  class="btn btn-primary"
-                  :disabled="reserving"
-                >
-                  {{ reserving ? 'Reserving...' : 'Reserve Book' }}
-                </button>
+              <div v-if="isAuthenticated && (authStore.isStudent || authStore.isTeacher)" class="space-y-2">
+                <div v-if="hasActiveLoan" class="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-md">
+                  You already have this book borrowed
+                </div>
+                <div v-else-if="hasPendingRequest" class="text-sm text-yellow-600 bg-yellow-50 px-4 py-2 rounded-md">
+                  You have a pending request for this book
+                </div>
+                <div v-else class="space-x-2">
+                  <button
+                    v-if="book.availableCopies > 0"
+                    @click="handleRequestBorrow"
+                    class="btn btn-primary"
+                    :disabled="requesting"
+                  >
+                    {{ requesting ? 'Requesting...' : 'Request to Borrow' }}
+                  </button>
+                  <button
+                    v-else
+                    @click="handleReserve"
+                    class="btn btn-primary"
+                    :disabled="reserving"
+                  >
+                    {{ reserving ? 'Reserving...' : 'Reserve Book' }}
+                  </button>
+                </div>
               </div>
               <div v-else-if="isAuthenticated" class="text-sm text-gray-600">
                 Visit the circulation desk to borrow
@@ -154,8 +162,30 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 const reserving = ref(false)
 const requesting = ref(false)
 
+// Check if user already has this book borrowed or pending
+const hasActiveLoan = computed(() => {
+  if (!book.value || !circulationStore.myLoans) return false
+  return circulationStore.myLoans.some(loan => 
+    loan.book?._id === book.value._id && 
+    (loan.status === 'active' || loan.status === 'overdue') &&
+    loan.approvalStatus === 'approved'
+  )
+})
+
+const hasPendingRequest = computed(() => {
+  if (!book.value || !circulationStore.myLoans) return false
+  return circulationStore.myLoans.some(loan => 
+    loan.book?._id === book.value._id && 
+    loan.approvalStatus === 'pending'
+  )
+})
+
 onMounted(async () => {
   await catalogStore.fetchBook(route.params.id)
+  // Fetch user's loans to check if they already have this book
+  if (isAuthenticated.value && (authStore.isStudent || authStore.isTeacher)) {
+    await circulationStore.fetchMyLoans()
+  }
 })
 
 const handleRequestBorrow = async () => {

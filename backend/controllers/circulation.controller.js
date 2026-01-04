@@ -31,6 +31,18 @@ exports.checkoutBook = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('User cannot borrow more books. Check membership status or outstanding fines', 400));
   }
   
+  // Check if user already has an active loan for this book
+  const existingLoan = await Transaction.findOne({
+    user: userId,
+    book: bookId,
+    status: { $in: ['active', 'overdue'] },
+    approvalStatus: 'approved'
+  });
+  
+  if (existingLoan) {
+    return next(new ErrorResponse('User already has an active loan for this book', 400));
+  }
+  
   // Check if book is available
   if (book.availableCopies < 1 || book.isReference) {
     return next(new ErrorResponse('Book is not available for checkout', 400));
@@ -287,7 +299,8 @@ exports.cancelReservation = asyncHandler(async (req, res, next) => {
 exports.getMyLoans = asyncHandler(async (req, res, next) => {
   const transactions = await Transaction.find({
     user: req.user.id,
-    status: { $in: ['active', 'overdue'] }
+    status: { $in: ['active', 'overdue'] },
+    approvalStatus: 'approved' // Only show approved transactions
   }).populate('book', 'title authors isbn barcode coverImage dueDate');
   
   res.status(200).json({
@@ -379,6 +392,18 @@ exports.requestBorrow = asyncHandler(async (req, res, next) => {
   
   if (existingRequest) {
     return next(new ErrorResponse('You already have a pending request for this book', 400));
+  }
+  
+  // Check if user already has an active loan for this book
+  const existingLoan = await Transaction.findOne({
+    user: userId,
+    book: bookId,
+    status: { $in: ['active', 'overdue'] },
+    approvalStatus: 'approved'
+  });
+  
+  if (existingLoan) {
+    return next(new ErrorResponse('You already have an active loan for this book', 400));
   }
   
   // Calculate due date
