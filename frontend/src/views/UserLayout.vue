@@ -63,12 +63,87 @@
               Admin Panel
             </router-link>
 
-            <!-- Notifications (Optional) -->
-            <button class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 mr-2">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            </button>
+            <!-- Notifications -->
+            <div class="relative mr-2">
+              <button @click="showNotifications = !showNotifications" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 relative">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <!-- Unread Badge -->
+                <span v-if="notificationStore.unreadCount > 0" class="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                  {{ notificationStore.unreadCount }}
+                </span>
+              </button>
+
+              <!-- Notifications Dropdown -->
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="transform opacity-100 scale-100"
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <div v-if="showNotifications" @click.stop class="origin-top-right absolute right-0 mt-2 w-96 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                  <!-- Header -->
+                  <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
+                    <button v-if="notificationStore.unreadCount > 0" @click="markAllAsRead" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                      Mark all as read
+                    </button>
+                  </div>
+
+                  <!-- Notifications List -->
+                  <div class="max-h-96 overflow-y-auto">
+                    <div v-if="notificationStore.notifications.length === 0" class="px-4 py-8 text-center text-gray-500 text-sm">
+                      No notifications
+                    </div>
+                    <div v-else>
+                      <div 
+                        v-for="notification in notificationStore.notifications" 
+                        :key="notification._id"
+                        @click="handleNotificationClick(notification)"
+                        :class="[
+                          'px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100',
+                          !notification.isRead ? 'bg-indigo-50' : ''
+                        ]"
+                      >
+                        <div class="flex items-start">
+                          <!-- Icon -->
+                          <div :class="[
+                            'flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center',
+                            getNotificationColor(notification.type)
+                          ]">
+                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                          </div>
+                          
+                          <!-- Content -->
+                          <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium text-gray-900">{{ notification.title }}</p>
+                            <p class="mt-1 text-sm text-gray-600">{{ notification.message }}</p>
+                            <p class="mt-1 text-xs text-gray-400">{{ formatNotificationTime(notification.createdAt) }}</p>
+                          </div>
+
+                          <!-- Unread Indicator -->
+                          <div v-if="!notification.isRead" class="ml-2 flex-shrink-0">
+                            <div class="h-2 w-2 bg-indigo-600 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Footer -->
+                  <div v-if="notificationStore.notifications.length > 0" class="px-4 py-2 border-t border-gray-200 text-center">
+                    <button class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                      View all notifications
+                    </button>
+                  </div>
+                </div>
+              </transition>
+            </div>
 
             <!-- User Profile Dropdown -->
             <div class="ml-3 relative">
@@ -200,15 +275,18 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
 const router = useRouter()
 
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
+const showNotifications = ref(false)
 
 const userName = computed(() => {
   if (authStore.user?.firstName && authStore.user?.lastName) {
@@ -235,4 +313,58 @@ const handleLogout = () => {
   authStore.logout()
   router.push('/login')
 }
+
+async function handleNotificationClick(notification) {
+  if (!notification.isRead) {
+    await notificationStore.markAsRead(notification._id)
+  }
+  showNotifications.value = false
+}
+
+async function markAllAsRead() {
+  await notificationStore.markAllAsRead()
+}
+
+function getNotificationColor(type) {
+  const colors = {
+    'checkout': 'bg-green-500',
+    'return': 'bg-blue-500',
+    'overdue': 'bg-red-500',
+    'reservation': 'bg-purple-500',
+    'general': 'bg-gray-500'
+  }
+  return colors[type] || 'bg-gray-500'
+}
+
+function formatNotificationTime(date) {
+  if (!date) return ''
+  const now = new Date()
+  const notifDate = new Date(date)
+  const diffMs = now - notifDate
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffDays < 7) return `${diffDays}d ago`
+  return notifDate.toLocaleDateString()
+}
+
+onMounted(() => {
+  if (isAuthenticated.value) {
+    // Fetch notifications on mount
+    notificationStore.fetchNotifications()
+    // Poll for new notifications every 30 seconds
+    const pollInterval = setInterval(() => {
+      notificationStore.fetchNotifications()
+    }, 30000)
+    
+    // Store interval ID to clear on unmount
+    onUnmounted(() => {
+      clearInterval(pollInterval)
+    })
+  }
+})
 </script>

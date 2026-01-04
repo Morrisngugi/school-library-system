@@ -267,6 +267,26 @@ export const reportService = {
 }
 
 export const notificationService = {
+  async getMyNotifications(params) {
+    const response = await api.get('/notify/my-notifications', { params })
+    return response.data
+  },
+
+  async markAsRead(id) {
+    const response = await api.put(`/notify/${id}/read`)
+    return response.data
+  },
+
+  async markAllAsRead() {
+    const response = await api.put('/notify/mark-all-read')
+    return response.data
+  },
+
+  async deleteNotification(id) {
+    const response = await api.delete(`/notify/${id}`)
+    return response.data
+  },
+
   async sendNotification(data) {
     const response = await api.post('/notify/send', data)
     return response.data

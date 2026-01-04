@@ -50,6 +50,15 @@ exports.getDashboardStats = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: {
+      totalBooks: totalBooks,
+      availableBooks: availableBooks,
+      issuedBooks: totalBooks - availableBooks,
+      totalUsers: totalUsers,
+      activeUsers: activeMembers,
+      activeLoans: activeLoans,
+      totalLoans: activeLoans,
+      overdueBooks: overdueLoans,
+      activeReservations: activeReservations,
       books: {
         total: totalBooks,
         available: availableBooks,
