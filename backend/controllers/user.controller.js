@@ -123,8 +123,6 @@ exports.createUser = asyncHandler(async (req, res, next) => {
       html: emailHtml,
       text: `Welcome to School Library System\n\nDear ${user.firstName} ${user.lastName},\n\nYour account has been created successfully.\n\nEmail: ${user.email}\nPassword: ${plainPassword}\nMembership ID: ${membershipId}\nRole: ${user.role}\n\nPlease change your password after your first login.\n\nBest regards,\nSchool Library Team`
     });
-    
-    console.log(`Welcome email sent to ${user.email}`);
   } catch (emailError) {
     console.error('Failed to send welcome email:', emailError);
     // Don't fail the user creation if email fails
