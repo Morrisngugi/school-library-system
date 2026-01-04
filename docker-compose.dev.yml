@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: library-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: school_library
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - library-network
+
+  # Backend API (Development mode with hot reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: library-backend-dev
+    restart: unless-stopped
+    env_file:
+      - .env.development
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/public/uploads:/app/public/uploads
+    depends_on:
+      - mongodb
+    networks:
+      - library-network
+    command: npm run dev
+
+  # Frontend (Development mode with hot reload)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: library-frontend-dev
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:5000/api/v1
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - library-network
+    command: npm run serve
+
+networks:
+  library-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
