@@ -203,7 +203,7 @@
                         </svg>
                         <div class="ml-3">
                           <p class="text-sm text-red-800">
-                            This book is overdue by {{ Math.abs(getDaysRemaining(loan.dueDate)) }} day(s). Please return it immediately to avoid additional fines ($10/day).
+                            This book is overdue by {{ Math.abs(getDaysRemaining(loan.dueDate)) }} day(s). Please return it immediately to avoid additional fines (Ksh 5/day).
                           </p>
                         </div>
                       </div>

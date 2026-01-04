@@ -18,7 +18,7 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-500">Total Outstanding</p>
-              <p class="text-2xl font-semibold text-red-600">${{ totalUnpaidFines.toFixed(2) }}</p>
+              <p class="text-2xl font-semibold text-red-600">Ksh {{ totalUnpaidFines.toFixed(2) }}</p>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@
           <div class="ml-3">
             <h3 class="text-sm font-medium text-blue-800">Fine Policy</h3>
             <p class="text-sm text-blue-700 mt-1">
-              Late returns are charged $10.00 per day. To avoid fines, return books on or before the due date. You can renew books up to 2 times if they're not overdue.
+              Late returns are charged Ksh 5.00 per day. To avoid fines, return books on or before the due date. You can renew books up to 2 times if they're not overdue.
             </p>
           </div>
         </div>

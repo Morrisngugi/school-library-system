@@ -56,7 +56,7 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-500">Outstanding Fines</p>
-              <p class="text-2xl font-semibold text-gray-900">${{ totalFines.toFixed(2) }}</p>
+              <p class="text-2xl font-semibold text-gray-900">Ksh {{ totalFines.toFixed(2) }}</p>
             </div>
           </div>
         </div>
@@ -270,7 +270,7 @@
               </div>
               <div class="flex justify-between py-2 border-b border-gray-100">
                 <span class="text-gray-600">Fine per day:</span>
-                <span class="font-medium text-gray-900">$10.00</span>
+                <span class="font-medium text-gray-900">Ksh 5.00</span>
               </div>
               <div class="flex justify-between py-2 border-b border-gray-100">
                 <span class="text-gray-600">Member Since:</span>
@@ -300,12 +300,12 @@
                   <p class="text-sm font-medium text-gray-900 truncate">{{ fine.transaction?.book?.title }}</p>
                   <p class="text-xs text-gray-500">{{ fine.reason }}</p>
                 </div>
-                <span class="text-sm font-semibold text-red-600 ml-2">${{ fine.amount?.toFixed(2) }}</span>
+                <span class="text-sm font-semibold text-red-600 ml-2">Ksh {{ fine.amount?.toFixed(2) }}</span>
               </div>
               <div class="pt-2 border-t-2 border-gray-200">
                 <div class="flex justify-between items-center">
                   <span class="text-sm font-semibold text-gray-900">Total:</span>
-                  <span class="text-lg font-bold text-red-600">${{ totalFines.toFixed(2) }}</span>
+                  <span class="text-lg font-bold text-red-600">Ksh {{ totalFines.toFixed(2) }}</span>
                 </div>
               </div>
             </div>

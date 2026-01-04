@@ -247,7 +247,7 @@
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
-                    ${{ (getDaysOverdue(item.dueDate) * 10).toFixed(2) }}
+                    Ksh {{ (getDaysOverdue(item.dueDate) * 5).toFixed(2) }}
                   </td>
                 </tr>
               </tbody>

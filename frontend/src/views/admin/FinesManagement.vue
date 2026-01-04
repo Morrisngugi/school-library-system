@@ -17,7 +17,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-500">Total Outstanding</p>
-            <p class="text-2xl font-semibold text-red-600">${{ totalUnpaidAmount.toFixed(2) }}</p>
+            <p class="text-2xl font-semibold text-red-600">Ksh {{ totalUnpaidAmount.toFixed(2) }}</p>
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-gray-500">Paid Today</p>
-            <p class="text-2xl font-semibold text-gray-900">${{ paidTodayAmount.toFixed(2) }}</p>
+            <p class="text-2xl font-semibold text-gray-900">Ksh {{ paidTodayAmount.toFixed(2) }}</p>
           </div>
         </div>
       </div>

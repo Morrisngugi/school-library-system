@@ -8,10 +8,8 @@
           <div class="flex items-center">
             <div class="flex-shrink-0 flex items-center">
               <!-- Logo -->
-              <div class="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
+              <div class="h-12 w-12 mr-3 bg-white rounded-lg p-1 shadow-sm">
+                <img :src="logo" alt="School Library Logo" class="h-full w-full object-contain" />
               </div>
               <!-- Title -->
               <div>
@@ -69,18 +67,18 @@
                 leave-from-class="transform opacity-100 scale-100"
                 leave-to-class="transform opacity-0 scale-95"
               >
-                <div v-if="showNotifications" @click.stop class="origin-top-right absolute right-0 mt-2 w-screen max-w-sm md:max-w-md lg:w-96 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                <div v-if="showNotifications" @click.stop class="fixed md:absolute inset-x-0 md:inset-x-auto top-16 md:top-auto md:right-0 md:mt-2 mx-2 md:mx-0 w-auto md:w-96 rounded-lg shadow-xl bg-white ring-1 ring-black ring-opacity-5 z-50 max-h-[calc(100vh-5rem)] md:max-h-[36rem] flex flex-col">
                   <!-- Header -->
-                  <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
-                    <button v-if="notificationStore.unreadCount > 0" @click="markAllAsRead" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                  <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                    <h3 class="text-base md:text-sm font-semibold text-gray-900">Notifications</h3>
+                    <button v-if="notificationStore.unreadCount > 0" @click="markAllAsRead" class="text-sm md:text-xs text-indigo-600 hover:text-indigo-800 font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors">
                       Mark all as read
                     </button>
                   </div>
 
                   <!-- Notifications List -->
-                  <div class="max-h-96 md:max-h-96 overflow-y-auto overscroll-contain">
-                    <div v-if="notificationStore.notifications.length === 0" class="px-4 py-8 text-center text-gray-500 text-sm">
+                  <div class="flex-1 overflow-y-auto overscroll-contain">
+                    <div v-if="notificationStore.notifications.length === 0" class="px-4 py-12 text-center text-gray-500 text-sm">
                       No notifications
                     </div>
                     <div v-else>
@@ -89,7 +87,7 @@
                         :key="notification._id"
                         @click="handleNotificationClick(notification)"
                         :class="[
-                          'px-4 py-3 md:py-3 py-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer border-b border-gray-100 transition-colors',
+                          'px-4 py-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer border-b border-gray-100 transition-colors',
                           !notification.isRead ? 'bg-indigo-50' : ''
                         ]"
                       >
@@ -121,8 +119,8 @@
                   </div>
 
                   <!-- Footer -->
-                  <div v-if="notificationStore.notifications.length > 0" class="px-4 py-2 border-t border-gray-200 text-center">
-                    <button class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                  <div v-if="notificationStore.notifications.length > 0" class="px-4 py-3 border-t border-gray-200 text-center flex-shrink-0">
+                    <button class="text-sm md:text-sm text-indigo-600 hover:text-indigo-800 font-medium py-2 px-4 rounded hover:bg-indigo-50 transition-colors">
                       View all notifications
                     </button>
                   </div>
@@ -254,6 +252,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notification'
+import logo from '@/assets/images/logo.png'
 
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
