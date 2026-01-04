@@ -231,7 +231,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const stats = ref({
   totalBooks: 0,
@@ -253,9 +253,9 @@ async function fetchDashboardData() {
   try {
     // Fetch multiple endpoints in parallel
     const [booksRes, usersRes, subjectsRes] = await Promise.all([
-      axios.get('/api/v1/catalog/books?limit=1').catch(() => ({ data: { count: 0 } })),
-      axios.get('/api/v1/users?limit=1').catch(() => ({ data: { count: 0 } })),
-      axios.get('/api/v1/catalog/subjects').catch(() => ({ data: { data: [] } }))
+      api.get('/catalog/books?limit=1').catch(() => ({ data: { count: 0 } })),
+      api.get('/users?limit=1').catch(() => ({ data: { count: 0 } })),
+      api.get('/catalog/subjects').catch(() => ({ data: { data: [] } }))
     ])
 
     stats.value.totalBooks = booksRes.data.count || 0
