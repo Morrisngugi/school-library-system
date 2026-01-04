@@ -62,7 +62,7 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 
 // @desc    Create new user
 // @route   POST /api/v1/users
-// @access  Private/Admin/Librarian
+// @access  Private/Admin
 exports.createUser = asyncHandler(async (req, res, next) => {
   // Generate auto-incremental membership ID
   // Find the last user with MEM membership ID pattern to get the highest number
@@ -136,7 +136,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 
 // @desc    Update user
 // @route   PUT /api/v1/users/:id
-// @access  Private/Admin/Librarian
+// @access  Private/Admin
 exports.updateUser = asyncHandler(async (req, res, next) => {
   let user = await User.findById(req.params.id);
   

@@ -7,7 +7,7 @@
           User Management
         </h2>
       </div>
-      <div class="mt-4 flex md:mt-0 md:ml-4">
+      <div v-if="isAdmin" class="mt-4 flex md:mt-0 md:ml-4">
         <button @click="showCreateModal = true" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -100,8 +100,11 @@
               {{ formatDate(user.createdAt) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <button @click="editUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-              <button @click="deleteUser(user._id)" class="text-red-600 hover:text-red-900">Delete</button>
+              <template v-if="isAdmin">
+                <button @click="editUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                <button @click="deleteUser(user._id)" class="text-red-600 hover:text-red-900">Delete</button>
+              </template>
+              <span v-else class="text-gray-400 text-sm">View only</span>
             </td>
           </tr>
         </tbody>
@@ -224,9 +227,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '@/services/api'
+import { useAuthStore } from '@/stores/auth'
 
+const authStore = useAuthStore()
 const users = ref([])
 const loading = ref(false)
 const submitting = ref(false)
@@ -257,6 +262,8 @@ const formData = ref({
   membershipStatus: 'active',
   isActive: true
 })
+
+const isAdmin = computed(() => authStore.isAdmin)
 
 onMounted(() => {
   fetchUsers()

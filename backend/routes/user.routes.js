@@ -20,12 +20,12 @@ router.use(protect);
 router
   .route('/')
   .get(authorize('admin', 'librarian'), getUsers)
-  .post(authorize('admin', 'librarian'), createUser);
+  .post(authorize('admin'), createUser);
 
 router
   .route('/:id')
   .get(authorize('admin', 'librarian'), getUser)
-  .put(authorize('admin', 'librarian'), updateUser)
+  .put(authorize('admin'), updateUser)
   .delete(authorize('admin'), deleteUser);
 
 router.get('/:id/history', getUserHistory);
