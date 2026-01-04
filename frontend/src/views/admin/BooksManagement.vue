@@ -73,10 +73,13 @@
           <tr v-for="book in books" :key="book._id" class="hover:bg-gray-50">
             <td class="px-6 py-4">
               <div class="flex items-center">
-                <div class="flex-shrink-0 h-16 w-12 bg-gray-200 rounded flex items-center justify-center">
-                  <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
+                <div class="flex-shrink-0 h-16 w-12 rounded overflow-hidden">
+                  <img v-if="book.coverImage" :src="book.coverImage" :alt="book.title" class="h-full w-full object-cover">
+                  <div v-else class="h-full w-full bg-gray-200 flex items-center justify-center">
+                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
                 </div>
                 <div class="ml-4">
                   <div class="text-sm font-medium text-gray-900">{{ book.title }}</div>
@@ -201,6 +204,36 @@
                 </div>
 
                 <div class="col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover Image</label>
+                  
+                  <!-- Image Preview -->
+                  <div v-if="imagePreview || formData.coverImage" class="mb-3">
+                    <div class="relative inline-block">
+                      <img :src="imagePreview || formData.coverImage" alt="Book cover preview" class="h-48 w-32 object-cover rounded-lg shadow-md">
+                      <button type="button" @click="removeImage" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- File Upload -->
+                  <div class="flex items-center justify-center w-full">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                      <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg class="w-8 h-8 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p class="mb-1 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                      </div>
+                      <input ref="fileInput" @change="handleImageUpload" type="file" accept="image/*" class="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-span-2">
                   <label class="block text-sm font-medium text-gray-700">Description</label>
                   <textarea v-model="formData.description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
                 </div>
@@ -258,6 +291,9 @@ const submitting = ref(false)
 const showCreateModal = ref(false)
 const editingBook = ref(null)
 const authorsInput = ref('')
+const imageFile = ref(null)
+const imagePreview = ref(null)
+const fileInput = ref(null)
 
 const filters = ref({
   search: '',
@@ -286,7 +322,8 @@ const formData = ref({
   status: 'available',
   description: '',
   location: { shelf: '', rack: '', floor: 1 },
-  isPopular: false
+  isPopular: false,
+  coverImage: ''
 })
 
 onMounted(() => {
@@ -339,7 +376,7 @@ function changePage(page) {
 
 function editBook(book) {
   editingBook.value = book
-  authorsInput.value = book.authors?.join(', ') || ''
+  imagePreview.value = book.coverImage || null
   formData.value = {
     title: book.title,
     authors: book.authors || [],
@@ -354,7 +391,8 @@ function editBook(book) {
     status: book.status,
     description: book.description || '',
     location: book.location || { shelf: '', rack: '', floor: 1 },
-    isPopular: book.isPopular || false
+    isPopular: book.isPopular || false,
+    coverImage: book.coverImage || ''
   }
   showCreateModal.value = true
 }
@@ -362,14 +400,20 @@ function editBook(book) {
 async function saveBook() {
   submitting.value = true
   try {
-    // Parse authors from comma-separated input
-    formData.value.authors = authorsInput.value.split(',').map(a => a.trim()).filter(a => a)
-    
+    let bookId
     if (editingBook.value) {
-      await axios.put(`/api/v1/catalog/books/${editingBook.value._id}`, formData.value)
+      const response = await axios.put(`/api/v1/catalog/books/${editingBook.value._id}`, formData.value)
+      bookId = editingBook.value._id
     } else {
-      await axios.post('/api/v1/catalog/books', formData.value)
+      const response = await axios.post('/api/v1/catalog/books', formData.value)
+      bookId = response.data.data._id
     }
+    
+    // Upload cover image if selected
+    if (imageFile.value && bookId) {
+      await uploadCoverImage(bookId)
+    }
+    
     closeModal()
     fetchBooks()
     alert(`Book ${editingBook.value ? 'updated' : 'added'} successfully!`)
@@ -378,6 +422,57 @@ async function saveBook() {
     alert(error.response?.data?.error || 'Failed to save book')
   } finally {
     submitting.value = false
+  }
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0]
+  if (file) {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+    
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB')
+      return
+    }
+    
+    imageFile.value = file
+    
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      imagePreview.value = e.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+async function uploadCoverImage(bookId) {
+  try {
+    const formData = new FormData()
+    formData.append('cover', imageFile.value)
+    
+    await axios.put(`/api/v1/catalog/books/${bookId}/photo`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  } catch (error) {
+    console.error('Error uploading cover image:', error)
+    throw error
+  }
+}
+
+function removeImage() {
+  imageFile.value = null
+  imagePreview.value = null
+  formData.value.coverImage = ''
+  if (fileInput.value) {
+    fileInput.value.value = ''
   }
 }
 
@@ -398,6 +493,8 @@ function closeModal() {
   showCreateModal.value = false
   editingBook.value = null
   authorsInput.value = ''
+  imageFile.value = null
+  imagePreview.value = null
   formData.value = {
     title: '',
     authors: [],
@@ -412,7 +509,8 @@ function closeModal() {
     status: 'available',
     description: '',
     location: { shelf: '', rack: '', floor: 1 },
-    isPopular: false
+    isPopular: false,
+    coverImage: ''
   }
 }
 
