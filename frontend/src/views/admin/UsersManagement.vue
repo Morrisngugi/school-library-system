@@ -271,7 +271,8 @@ async function fetchUsers() {
     pagination.value = response.data.pagination
   } catch (error) {
     console.error('Error fetching users:', error)
-    alert('Failed to load users')
+    const errorMsg = error.response?.data?.error || error.message || 'Failed to load users. Please try again.'
+    alert(`Error: ${errorMsg}`)
   } finally {
     loading.value = false
   }

@@ -300,6 +300,7 @@ async function fetchCategories() {
     categories.value = response.data.data
   } catch (error) {
     console.error('Error fetching categories:', error)
+    alert('Unable to load categories. Please refresh the page or check your connection.')
   }
 }
 
@@ -319,7 +320,8 @@ async function fetchBooks() {
     pagination.value = response.data.pagination
   } catch (error) {
     console.error('Error fetching books:', error)
-    alert('Failed to load books')
+    const errorMsg = error.response?.data?.error || error.message || 'Failed to load books. Please try again.'
+    alert(`Error: ${errorMsg}`)
   } finally {
     loading.value = false
   }

@@ -14,8 +14,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://backend:5000',
-        changeOrigin: true
+        target: 'http://backend:5000',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

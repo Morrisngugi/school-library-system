@@ -227,7 +227,8 @@ async function fetchCategories() {
     categories.value = response.data.data
   } catch (error) {
     console.error('Error fetching categories:', error)
-    alert('Failed to load categories')
+    const errorMsg = error.response?.data?.error || error.message || 'Failed to load categories. Please try again.'
+    alert(`Error: ${errorMsg}`)
   } finally {
     loading.value = false
   }
