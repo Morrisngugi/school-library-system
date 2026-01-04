@@ -235,10 +235,10 @@ exports.getUserActivityReport = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/reports/inventory
 // @access  Private/Librarian/Admin
 exports.getInventoryReport = asyncHandler(async (req, res, next) => {
-  const { category, status, condition } = req.query;
+  const { subject, status, condition } = req.query;
   
   let matchQuery = {};
-  if (category) matchQuery.category = category;
+  if (subject) matchQuery.subject = subject;
   if (status) matchQuery.status = status;
   if (condition) matchQuery.condition = condition;
   
@@ -246,7 +246,7 @@ exports.getInventoryReport = asyncHandler(async (req, res, next) => {
     { $match: matchQuery },
     {
       $group: {
-        _id: '$category',
+        _id: '$subject',
         totalBooks: { $sum: '$totalCopies' },
         availableBooks: { $sum: '$availableCopies' },
         issuedBooks: { $sum: { $subtract: ['$totalCopies', '$availableCopies'] } },
@@ -255,13 +255,13 @@ exports.getInventoryReport = asyncHandler(async (req, res, next) => {
     },
     {
       $lookup: {
-        from: 'categories',
+        from: 'subjects',
         localField: '_id',
         foreignField: '_id',
-        as: 'categoryDetails'
+        as: 'subjectDetails'
       }
     },
-    { $unwind: '$categoryDetails' }
+    { $unwind: '$subjectDetails' }
   ]);
   
   const totalInventory = await Book.aggregate([
@@ -279,7 +279,7 @@ exports.getInventoryReport = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     summary: totalInventory[0] || {},
-    byCategory: inventory
+    bySubject: inventory
   });
 });
 
@@ -293,7 +293,7 @@ exports.exportData = asyncHandler(async (req, res, next) => {
   
   switch (type) {
     case 'books':
-      data = await Book.find().populate('category');
+      data = await Book.find().populate('subject');
       break;
     case 'users':
       data = await User.find().select('-password');

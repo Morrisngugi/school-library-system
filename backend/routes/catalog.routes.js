@@ -6,10 +6,10 @@ const {
   updateBook,
   deleteBook,
   advancedSearch,
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
+  getSubjects,
+  createSubject,
+  updateSubject,
+  deleteSubject,
   uploadBookPhoto
 } = require('../controllers/catalog.controller');
 
@@ -40,15 +40,15 @@ router.put(
   uploadBookPhoto
 );
 
-// Categories routes
+// Subjects routes
 router
-  .route('/categories')
-  .get(getCategories)
-  .post(protect, authorize('admin', 'librarian'), createCategory);
+  .route('/subjects')
+  .get(getSubjects)
+  .post(protect, authorize('admin', 'librarian'), createSubject);
 
 router
-  .route('/categories/:id')
-  .put(protect, authorize('admin', 'librarian'), updateCategory)
-  .delete(protect, authorize('admin'), deleteCategory);
+  .route('/subjects/:id')
+  .put(protect, authorize('admin', 'librarian'), updateSubject)
+  .delete(protect, authorize('admin'), deleteSubject);
 
 module.exports = router;

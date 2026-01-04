@@ -71,24 +71,24 @@ export const bookService = {
   }
 }
 
-export const categoryService = {
-  async getCategories() {
-    const response = await api.get('/catalog/categories')
+export const subjectService = {
+  async getSubjects() {
+    const response = await api.get('/catalog/subjects')
     return response.data
   },
 
-  async createCategory(categoryData) {
-    const response = await api.post('/catalog/categories', categoryData)
+  async createSubject(subjectData) {
+    const response = await api.post('/catalog/subjects', subjectData)
     return response.data
   },
 
-  async updateCategory(id, categoryData) {
-    const response = await api.put(`/catalog/categories/${id}`, categoryData)
+  async updateSubject(id, subjectData) {
+    const response = await api.put(`/catalog/subjects/${id}`, subjectData)
     return response.data
   },
 
-  async deleteCategory(id) {
-    const response = await api.delete(`/catalog/categories/${id}`)
+  async deleteSubject(id) {
+    const response = await api.delete(`/catalog/subjects/${id}`)
     return response.data
   }
 }

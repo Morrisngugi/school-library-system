@@ -141,14 +141,14 @@
               </div>
             </router-link>
 
-            <router-link to="/admin/categories" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+            <router-link to="/admin/subjects" class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
               <div class="flex-shrink-0">
                 <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900">Manage Categories</p>
+                <p class="text-sm font-medium text-gray-900">Manage subjects</p>
               </div>
             </router-link>
 
@@ -206,22 +206,22 @@
       </div>
     </div>
 
-    <!-- Categories Overview -->
-    <div v-if="categories.length > 0" class="mt-8 bg-white shadow rounded-lg">
+    <!-- Subjects Overview -->
+    <div v-if="subjects.length > 0" class="mt-8 bg-white shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Categories Overview</h3>
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Subjects Overview</h3>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div v-for="category in categories.slice(0, 8)" :key="category._id" class="text-center">
-            <div class="inline-flex items-center justify-center h-12 w-12 rounded-full mb-2" :style="{ backgroundColor: category.color || '#6366f1' }">
-              <span class="text-white font-semibold">{{ category.code }}</span>
+          <div v-for="subject in subjects.slice(0, 8)" :key="subject._id" class="text-center">
+            <div class="inline-flex items-center justify-center h-12 w-12 rounded-full mb-2" :style="{ backgroundColor: subject.color || '#6366f1' }">
+              <span class="text-white font-semibold">{{ subject.code }}</span>
             </div>
-            <p class="text-sm font-medium text-gray-900">{{ category.name }}</p>
-            <p class="text-xs text-gray-500">{{ category.bookCount || 0 }} books</p>
+            <p class="text-sm font-medium text-gray-900">{{ subject.name }}</p>
+            <p class="text-xs text-gray-500">{{ subject.bookCount || 0 }} books</p>
           </div>
         </div>
-        <div v-if="categories.length > 8" class="mt-4 text-center">
-          <router-link to="/admin/categories" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-            View all {{ categories.length }} categories →
+        <div v-if="subjects.length > 8" class="mt-4 text-center">
+          <router-link to="/admin/subjects" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            View all {{ subjects.length }} subjects →
           </router-link>
         </div>
       </div>
@@ -240,7 +240,7 @@ const stats = ref({
   overdueBooks: 0
 })
 
-const categories = ref([])
+const subjects = ref([])
 const recentActivity = ref([])
 const loading = ref(false)
 
@@ -252,15 +252,15 @@ async function fetchDashboardData() {
   loading.value = true
   try {
     // Fetch multiple endpoints in parallel
-    const [booksRes, usersRes, categoriesRes] = await Promise.all([
+    const [booksRes, usersRes, subjectsRes] = await Promise.all([
       axios.get('/api/v1/catalog/books?limit=1').catch(() => ({ data: { count: 0 } })),
       axios.get('/api/v1/users?limit=1').catch(() => ({ data: { count: 0 } })),
-      axios.get('/api/v1/catalog/categories').catch(() => ({ data: { data: [] } }))
+      axios.get('/api/v1/catalog/subjects').catch(() => ({ data: { data: [] } }))
     ])
 
     stats.value.totalBooks = booksRes.data.count || 0
     stats.value.totalUsers = usersRes.data.count || 0
-    categories.value = categoriesRes.data.data || []
+    subjects.value = subjectsRes.data.data || []
 
     // Generate some sample recent activity (you can replace with real data later)
     recentActivity.value = [

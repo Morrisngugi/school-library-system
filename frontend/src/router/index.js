@@ -95,9 +95,9 @@ const routes = [
         component: () => import('@/views/admin/ReportsView.vue')
       },
       {
-        path: 'categories',
-        name: 'AdminCategories',
-        component: () => import('@/views/admin/CategoriesManagement.vue')
+        path: 'subjects',
+        name: 'AdminSubjects',
+        component: () => import('@/views/admin/SubjectsManagement.vue')
       }
     ]
   },

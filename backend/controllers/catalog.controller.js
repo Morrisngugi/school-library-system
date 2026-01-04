@@ -1,5 +1,5 @@
 const Book = require('../models/Book.model');
-const Category = require('../models/Category.model');
+const Subject = require('../models/Subject.model');
 const asyncHandler = require('../middleware/async.middleware');
 const ErrorResponse = require('../utils/errorResponse');
 
@@ -11,7 +11,8 @@ exports.getBooks = asyncHandler(async (req, res, next) => {
     page = 1, 
     limit = 10, 
     search, 
-    category, 
+    subject, 
+    form,
     status, 
     author,
     isbn,
@@ -28,7 +29,8 @@ exports.getBooks = asyncHandler(async (req, res, next) => {
   }
   
   // Filters
-  if (category) query.category = category;
+  if (subject) query.subject = subject;
+  if (form) query.form = form;
   if (status) query.status = status;
   if (author) query.authors = { $regex: author, $options: 'i' };
   if (isbn) query.isbn = isbn;
@@ -36,7 +38,7 @@ exports.getBooks = asyncHandler(async (req, res, next) => {
   if (isPopular) query.isPopular = isPopular === 'true';
   
   const books = await Book.find(query)
-    .populate('category', 'name code')
+    .populate('subject', 'name code color')
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .sort(sortBy);
@@ -59,7 +61,7 @@ exports.getBooks = asyncHandler(async (req, res, next) => {
 // @route   GET /api/v1/catalog/books/:id
 // @access  Public
 exports.getBook = asyncHandler(async (req, res, next) => {
-  const book = await Book.findById(req.params.id).populate('category');
+  const book = await Book.findById(req.params.id).populate('subject');
   
   if (!book) {
     return next(new ErrorResponse(`Book not found with id of ${req.params.id}`, 404));
@@ -88,8 +90,8 @@ exports.createBook = asyncHandler(async (req, res, next) => {
     accessionNumber
   });
   
-  // Update category book count
-  await Category.findByIdAndUpdate(book.category, {
+  // Update subject book count
+  await Subject.findByIdAndUpdate(book.subject, {
     $inc: { bookCount: 1 }
   });
   
@@ -133,8 +135,8 @@ exports.deleteBook = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Book not found with id of ${req.params.id}`, 404));
   }
   
-  // Update category book count
-  await Category.findByIdAndUpdate(book.category, {
+  // Update subject book count
+  await Subject.findByIdAndUpdate(book.subject, {
     $inc: { bookCount: -1 }
   });
   
@@ -151,15 +153,15 @@ exports.deleteBook = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/catalog/search
 // @access  Public
 exports.advancedSearch = asyncHandler(async (req, res, next) => {
-  const { title, author, isbn, subjects, category, yearFrom, yearTo, language } = req.body;
+  const { title, author, isbn, subject, form, yearFrom, yearTo, language } = req.body;
   
   let query = {};
   
   if (title) query.title = { $regex: title, $options: 'i' };
   if (author) query.authors = { $regex: author, $options: 'i' };
   if (isbn) query.isbn = isbn;
-  if (subjects && subjects.length > 0) query.subjects = { $in: subjects };
-  if (category) query.category = category;
+  if (subject) query.subject = subject;
+  if (form) query.form = form;
   if (language) query.language = language;
   
   if (yearFrom || yearTo) {
@@ -169,7 +171,7 @@ exports.advancedSearch = asyncHandler(async (req, res, next) => {
   }
   
   const books = await Book.find(query)
-    .populate('category', 'name code')
+    .populate('subject', 'name code color')
     .sort({ title: 1 });
   
   res.status(200).json({
@@ -179,71 +181,71 @@ exports.advancedSearch = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc    Get all categories
-// @route   GET /api/v1/catalog/categories
+// @desc    Get all subjects
+// @route   GET /api/v1/catalog/subjects
 // @access  Public
-exports.getCategories = asyncHandler(async (req, res, next) => {
-  const categories = await Category.find({ isActive: true }).sort({ name: 1 });
+exports.getSubjects = asyncHandler(async (req, res, next) => {
+  const subjects = await Subject.find({ isActive: true }).sort({ name: 1 });
   
   res.status(200).json({
     success: true,
-    count: categories.length,
-    data: categories
+    count: subjects.length,
+    data: subjects
   });
 });
 
-// @desc    Create category
-// @route   POST /api/v1/catalog/categories
+// @desc    Create subject
+// @route   POST /api/v1/catalog/subjects
 // @access  Private/Admin/Librarian
-exports.createCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.create(req.body);
+exports.createSubject = asyncHandler(async (req, res, next) => {
+  const subject = await Subject.create(req.body);
   
   res.status(201).json({
     success: true,
-    data: category
+    data: subject
   });
 });
 
-// @desc    Update category
-// @route   PUT /api/v1/catalog/categories/:id
+// @desc    Update subject
+// @route   PUT /api/v1/catalog/subjects/:id
 // @access  Private/Admin/Librarian
-exports.updateCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+exports.updateSubject = asyncHandler(async (req, res, next) => {
+  const subject = await Subject.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
   });
   
-  if (!category) {
-    return next(new ErrorResponse(`Category not found with id of ${req.params.id}`, 404));
+  if (!subject) {
+    return next(new ErrorResponse(`Subject not found with id of ${req.params.id}`, 404));
   }
   
   res.status(200).json({
     success: true,
-    data: category
+    data: subject
   });
 });
 
-// @desc    Delete category
-// @route   DELETE /api/v1/catalog/categories/:id
+// @desc    Delete subject
+// @route   DELETE /api/v1/catalog/subjects/:id
 // @access  Private/Admin
-exports.deleteCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.findById(req.params.id);
+exports.deleteSubject = asyncHandler(async (req, res, next) => {
+  const subject = await Subject.findById(req.params.id);
   
-  if (!category) {
-    return next(new ErrorResponse(`Category not found with id of ${req.params.id}`, 404));
+  if (!subject) {
+    return next(new ErrorResponse(`Subject not found with id of ${req.params.id}`, 404));
   }
   
-  // Check if category has books
-  if (category.bookCount > 0) {
-    return next(new ErrorResponse('Cannot delete category with books', 400));
+  // Check if subject has books
+  if (subject.bookCount > 0) {
+    return next(new ErrorResponse('Cannot delete subject with books', 400));
   }
   
-  await category.deleteOne();
+  await subject.deleteOne();
   
   res.status(200).json({
     success: true,
     data: {},
-    message: 'Category deleted successfully'
+    message: 'Subject deleted successfully'
   });
 });
 

@@ -266,8 +266,8 @@ http://localhost:5000/api/v1
 - `PUT /catalog/books/:id` - Update book
 - `DELETE /catalog/books/:id` - Delete book
 - `POST /catalog/search` - Advanced search
-- `GET /catalog/categories` - Get all categories
-- `POST /catalog/categories` - Create category
+- `GET /catalog/subjects` - Get all subjects
+- `POST /catalog/subjects` - Create category
 
 ### Circulation Endpoints
 - `POST /circulation/checkout` - Checkout book

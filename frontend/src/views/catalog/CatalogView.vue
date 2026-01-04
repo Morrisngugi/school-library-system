@@ -67,8 +67,8 @@
           </div>
           <div>
             <select v-model="selectedCategory" class="input">
-              <option value="">All Categories</option>
-              <option v-for="cat in categories" :key="cat._id" :value="cat._id">
+              <option value="">All subjects</option>
+              <option v-for="cat in subjects" :key="cat._id" :value="cat._id">
                 {{ cat.name }}
               </option>
             </select>
@@ -158,7 +158,7 @@ const searchQuery = ref('')
 const selectedCategory = ref('')
 
 const books = computed(() => catalogStore.books)
-const categories = computed(() => catalogStore.categories)
+const subjects = computed(() => catalogStore.subjects)
 const loading = computed(() => catalogStore.loading)
 const pagination = computed(() => catalogStore.pagination)
 
@@ -168,7 +168,7 @@ const user = computed(() => authStore.user)
 
 onMounted(async () => {
   await catalogStore.fetchBooks()
-  await catalogStore.fetchCategories()
+  await catalogStore.fetchsubjects()
 })
 
 const handleSearch = async () => {

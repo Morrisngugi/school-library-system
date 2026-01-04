@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { bookService, categoryService } from '@/services'
+import { bookService, subjectService } from '@/services'
 
 export const useCatalogStore = defineStore('catalog', () => {
   const books = ref([])
-  const categories = ref([])
+  const subjects = ref([])
   const currentBook = ref(null)
   const loading = ref(false)
   const error = ref(null)
@@ -98,20 +98,20 @@ export const useCatalogStore = defineStore('catalog', () => {
     }
   }
 
-  const fetchCategories = async () => {
+  const fetchSubjects = async () => {
     try {
-      const response = await categoryService.getCategories()
-      categories.value = response.data
+      const response = await subjectService.getSubjects()
+      subjects.value = response.data
       return response
     } catch (err) {
-      error.value = err.response?.data?.error || 'Failed to fetch categories'
+      error.value = err.response?.data?.error || 'Failed to fetch subjects'
       throw err
     }
   }
 
   return {
     books,
-    categories,
+    subjects,
     currentBook,
     loading,
     error,
@@ -122,6 +122,6 @@ export const useCatalogStore = defineStore('catalog', () => {
     createBook,
     updateBook,
     deleteBook,
-    fetchCategories
+    fetchSubjects
   }
 })

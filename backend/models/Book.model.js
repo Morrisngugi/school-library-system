@@ -30,15 +30,17 @@ const bookSchema = new mongoose.Schema({
   },
   
   // Classification
-  category: {
+  subject: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
+    ref: 'Subject',
     required: true
   },
-  subjects: [{
+  form: {
     type: String,
-    trim: true
-  }],
+    enum: ['Form 1', 'Form 2', 'Form 3', 'Form 4', 'General'],
+    required: true,
+    default: 'General'
+  },
   language: {
     type: String,
     default: 'English'
@@ -153,8 +155,8 @@ const bookSchema = new mongoose.Schema({
 });
 
 // Indexes for search optimization
-bookSchema.index({ title: 'text', authors: 'text', subjects: 'text', description: 'text' });
-bookSchema.index({ category: 1, status: 1 });
+bookSchema.index({ title: 'text', authors: 'text', description: 'text' });
+bookSchema.index({ subject: 1, form: 1, status: 1 });
 bookSchema.index({ barcode: 1, isbn: 1 });
 
 // Virtual for availability status

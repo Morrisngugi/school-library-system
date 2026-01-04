@@ -7,7 +7,7 @@ db.createCollection('books');
 db.createCollection('transactions');
 db.createCollection('reservations');
 db.createCollection('fines');
-db.createCollection('categories');
+db.createCollection('subjects');
 
 // Create indexes for better performance
 db.users.createIndex({ email: 1 }, { unique: true });

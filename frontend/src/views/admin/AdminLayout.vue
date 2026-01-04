@@ -31,8 +31,8 @@
               <router-link to="/admin/users" active-class="bg-indigo-50 text-indigo-700" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                 Users
               </router-link>
-              <router-link to="/admin/categories" active-class="bg-indigo-50 text-indigo-700" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                Categories
+              <router-link to="/admin/subjects" active-class="bg-indigo-50 text-indigo-700" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                Subjects
               </router-link>
               <router-link to="/admin/circulation" active-class="bg-indigo-50 text-indigo-700" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                 Circulation
@@ -148,8 +148,8 @@
           <router-link to="/admin/users" active-class="bg-indigo-50 text-indigo-700" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
             Users
           </router-link>
-          <router-link to="/admin/categories" active-class="bg-indigo-50 text-indigo-700" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
-            Categories
+          <router-link to="/admin/subjects" active-class="bg-indigo-50 text-indigo-700" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
+            Subjects
           </router-link>
           <router-link to="/admin/circulation" active-class="bg-indigo-50 text-indigo-700" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">
             Circulation
@@ -218,3 +218,4 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 </script>
+

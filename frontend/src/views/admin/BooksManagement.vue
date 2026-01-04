@@ -19,14 +19,24 @@
 
     <!-- Filters -->
     <div class="bg-white shadow rounded-lg p-4 mb-6">
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
         <div>
           <input v-model="filters.search" @input="fetchBooks" type="text" placeholder="Search title, author, ISBN..." class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
         </div>
         <div>
-          <select v-model="filters.category" @change="fetchBooks" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-            <option value="">All Categories</option>
-            <option v-for="cat in categories" :key="cat._id" :value="cat._id">{{ cat.name }}</option>
+          <select v-model="filters.subject" @change="fetchBooks" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <option value="">All Subjects</option>
+            <option v-for="sub in subjects" :key="sub._id" :value="sub._id">{{ sub.name }}</option>
+          </select>
+        </div>
+        <div>
+          <select v-model="filters.form" @change="fetchBooks" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <option value="">All Forms</option>
+            <option value="Form 1">Form 1</option>
+            <option value="Form 2">Form 2</option>
+            <option value="Form 3">Form 3</option>
+            <option value="Form 4">Form 4</option>
+            <option value="General">General</option>
           </select>
         </div>
         <div>
@@ -62,7 +72,8 @@
         <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Book</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Form</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ISBN/Barcode</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Copies</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -89,7 +100,12 @@
             </td>
             <td class="px-6 py-4">
               <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                {{ book.category?.name || 'N/A' }}
+                {{ book.subject?.name || 'N/A' }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                {{ book.form || 'General' }}
               </span>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500">
@@ -161,10 +177,22 @@
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700">Category *</label>
-                  <select v-model="formData.category" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option value="">Select Category</option>
-                    <option v-for="cat in categories" :key="cat._id" :value="cat._id">{{ cat.name }}</option>
+                  <label class="block text-sm font-medium text-gray-700">Subject *</label>
+                  <select v-model="formData.subject" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="">Select Subject</option>
+                    <option v-for="sub in subjects" :key="sub._id" :value="sub._id">{{ sub.name }}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Form/Class *</label>
+                  <select v-model="formData.form" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="">Select Form</option>
+                    <option value="Form 1">Form 1</option>
+                    <option value="Form 2">Form 2</option>
+                    <option value="Form 3">Form 3</option>
+                    <option value="Form 4">Form 4</option>
+                    <option value="General">General/Reference</option>
                   </select>
                 </div>
 
@@ -285,7 +313,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 const books = ref([])
-const categories = ref([])
+const subjects = ref([])
 const loading = ref(false)
 const submitting = ref(false)
 const showCreateModal = ref(false)
@@ -297,7 +325,8 @@ const fileInput = ref(null)
 
 const filters = ref({
   search: '',
-  category: '',
+  subject: '',
+  form: '',
   status: '',
   page: 1
 })
@@ -313,7 +342,8 @@ const formData = ref({
   authors: [],
   isbn: '',
   barcode: '',
-  category: '',
+  subject: '',
+  form: 'General',
   publisher: '',
   publicationYear: new Date().getFullYear(),
   language: 'English',
@@ -327,17 +357,17 @@ const formData = ref({
 })
 
 onMounted(() => {
-  fetchCategories()
+  fetchSubjects()
   fetchBooks()
 })
 
-async function fetchCategories() {
+async function fetchSubjects() {
   try {
-    const response = await axios.get('/api/v1/catalog/categories')
-    categories.value = response.data.data
+    const response = await axios.get('/api/v1/catalog/subjects')
+    subjects.value = response.data.data
   } catch (error) {
-    console.error('Error fetching categories:', error)
-    alert('Unable to load categories. Please refresh the page or check your connection.')
+    console.error('Error fetching subjects:', error)
+    alert('Unable to load subjects. Please refresh the page or check your connection.')
   }
 }
 
@@ -348,7 +378,8 @@ async function fetchBooks() {
       page: filters.value.page,
       limit: pagination.value.limit,
       ...(filters.value.search && { search: filters.value.search }),
-      ...(filters.value.category && { category: filters.value.category }),
+      ...(filters.value.subject && { subject: filters.value.subject }),
+      ...(filters.value.form && { form: filters.value.form }),
       ...(filters.value.status && { status: filters.value.status })
     }
     
@@ -365,7 +396,7 @@ async function fetchBooks() {
 }
 
 function resetFilters() {
-  filters.value = { search: '', category: '', status: '', page: 1 }
+  filters.value = { search: '', subject: '', form: '', status: '', page: 1 }
   fetchBooks()
 }
 
@@ -382,7 +413,8 @@ function editBook(book) {
     authors: book.authors || [],
     isbn: book.isbn || '',
     barcode: book.barcode,
-    category: book.category?._id || '',
+    subject: book.subject?._id || '',
+    form: book.form || 'General',
     publisher: book.publisher || '',
     publicationYear: book.publicationYear || new Date().getFullYear(),
     language: book.language || 'English',
@@ -500,7 +532,8 @@ function closeModal() {
     authors: [],
     isbn: '',
     barcode: '',
-    category: '',
+    subject: '',
+    form: 'General',
     publisher: '',
     publicationYear: new Date().getFullYear(),
     language: 'English',
@@ -524,3 +557,4 @@ function getStatusClass(status) {
   return classes[status] || 'bg-gray-100 text-gray-800'
 }
 </script>
+
