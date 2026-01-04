@@ -1,53 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex items-center">
-            <router-link to="/" class="text-xl font-bold text-primary-600">
-              School Library
-            </router-link>
-            <div class="ml-10 flex space-x-4">
-              <router-link to="/catalog" class="text-gray-700 hover:text-primary-600 px-3 py-2">
-                Catalog
-              </router-link>
-              <router-link v-if="isAuthenticated" to="/my-loans" class="text-gray-700 hover:text-primary-600 px-3 py-2">
-                My Loans
-              </router-link>
-              <router-link v-if="isAuthenticated" to="/my-reservations" class="text-gray-700 hover:text-primary-600 px-3 py-2">
-                Reservations
-              </router-link>
-            </div>
-          </div>
-          
-          <div class="flex items-center space-x-4">
-            <template v-if="isAuthenticated">
-              <router-link v-if="isStaff" to="/admin" class="text-gray-700 hover:text-primary-600 px-3 py-2">
-                Admin Panel
-              </router-link>
-              <router-link to="/profile" class="text-gray-700 hover:text-primary-600 px-3 py-2">
-                {{ user?.firstName }}
-              </router-link>
-              <button @click="handleLogout" class="btn btn-secondary">
-                Logout
-              </button>
-            </template>
-            <template v-else>
-              <router-link to="/login" class="btn btn-secondary">
-                Login
-              </router-link>
-              <router-link to="/register" class="btn btn-primary">
-                Register
-              </router-link>
-            </template>
-          </div>
-        </div>
-      </div>
-    </nav>
-
+  <div class="min-h-screen bg-gray-50 py-6">
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Book Catalog</h1>
         <p class="mt-2 text-gray-600">Search and discover books in our library</p>
@@ -188,10 +142,5 @@ const goToPage = async (page) => {
 
 const goToBook = (id) => {
   router.push(`/books/${id}`)
-}
-
-const handleLogout = () => {
-  authStore.logout()
-  router.push('/login')
 }
 </script>

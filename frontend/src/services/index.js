@@ -152,6 +152,11 @@ export const circulationService = {
   async rejectBorrowRequest(transactionId, reason) {
     const response = await api.put(`/circulation/reject/${transactionId}`, { reason })
     return response.data
+  },
+
+  async getMyRequests(params) {
+    const response = await api.get('/circulation/my-requests', { params })
+    return response.data
   }
 }
 

@@ -3,10 +3,6 @@ import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   {
-    path: '/',
-    redirect: '/catalog'
-  },
-  {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/auth/LoginView.vue'),
@@ -18,45 +14,56 @@ const routes = [
     component: () => import('@/views/auth/RegisterView.vue'),
     meta: { guest: true }
   },
+  // User Routes with Layout
   {
-    path: '/catalog',
-    name: 'Catalog',
-    component: () => import('@/views/catalog/CatalogView.vue')
-  },
-  {
-    path: '/books/:id',
-    name: 'BookDetail',
-    component: () => import('@/views/catalog/BookDetailView.vue')
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: () => import('@/views/dashboard/DashboardView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/my-loans',
-    name: 'MyLoans',
-    component: () => import('@/views/user/MyLoansView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/my-reservations',
-    name: 'MyReservations',
-    component: () => import('@/views/user/MyReservationsView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/my-fines',
-    name: 'MyFines',
-    component: () => import('@/views/user/MyFinesView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: () => import('@/views/user/ProfileView.vue'),
-    meta: { requiresAuth: true }
+    path: '/',
+    component: () => import('@/views/UserLayout.vue'),
+    children: [
+      {
+        path: '',
+        redirect: '/catalog'
+      },
+      {
+        path: 'catalog',
+        name: 'Catalog',
+        component: () => import('@/views/catalog/CatalogView.vue')
+      },
+      {
+        path: 'books/:id',
+        name: 'BookDetail',
+        component: () => import('@/views/catalog/BookDetailView.vue')
+      },
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/DashboardView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'dashboard/my-loans',
+        name: 'MyLoans',
+        component: () => import('@/views/user/MyLoansView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'dashboard/my-reservations',
+        name: 'MyReservations',
+        component: () => import('@/views/user/MyReservationsView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'dashboard/my-fines',
+        name: 'MyFines',
+        component: () => import('@/views/user/MyFinesView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'dashboard/profile',
+        name: 'Profile',
+        component: () => import('@/views/user/ProfileView.vue'),
+        meta: { requiresAuth: true }
+      }
+    ]
   },
   // Admin/Librarian Routes
   {
