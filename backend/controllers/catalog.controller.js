@@ -253,7 +253,7 @@ exports.deleteSubject = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/catalog/books/:id/photo
 // @access  Private/Admin/Librarian
 exports.uploadBookPhoto = asyncHandler(async (req, res, next) => {
-  const book = await Book.findById(req.params.id);
+  const book = await Book.findById(req.params.id).populate('subject', 'name code color');
   
   if (!book) {
     return next(new ErrorResponse(`Book not found with id of ${req.params.id}`, 404));
@@ -268,6 +268,6 @@ exports.uploadBookPhoto = asyncHandler(async (req, res, next) => {
   
   res.status(200).json({
     success: true,
-    data: book.coverImage
+    data: book
   });
 });

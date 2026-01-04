@@ -17,6 +17,11 @@ export default defineConfig({
         target: 'http://backend:5000',
         changeOrigin: true,
         secure: false
+      },
+      '/uploads': {
+        target: 'http://backend:5000',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

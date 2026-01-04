@@ -74,7 +74,7 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Book</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Form</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ISBN/Barcode</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Author(s)</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Copies</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -94,7 +94,7 @@
                 </div>
                 <div class="ml-4">
                   <div class="text-sm font-medium text-gray-900">{{ book.title }}</div>
-                  <div class="text-sm text-gray-500">{{ book.authors?.join(', ') }}</div>
+                  <div class="text-sm text-gray-500">{{ book.isbn || book.barcode }}</div>
                 </div>
               </div>
             </td>
@@ -108,9 +108,8 @@
                 {{ book.form || 'General' }}
               </span>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500">
-              <div>ISBN: {{ book.isbn || 'N/A' }}</div>
-              <div>{{ book.barcode }}</div>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              {{ book.authors?.join(', ') || 'N/A' }}
             </td>
             <td class="px-6 py-4">
               <div class="text-sm text-gray-900">{{ book.availableCopies }}/{{ book.totalCopies }}</div>
@@ -310,7 +309,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const books = ref([])
 const subjects = ref([])
@@ -363,7 +362,7 @@ onMounted(() => {
 
 async function fetchSubjects() {
   try {
-    const response = await axios.get('/api/v1/catalog/subjects')
+    const response = await api.get('/catalog/subjects')
     subjects.value = response.data.data
   } catch (error) {
     console.error('Error fetching subjects:', error)
@@ -383,7 +382,7 @@ async function fetchBooks() {
       ...(filters.value.status && { status: filters.value.status })
     }
     
-    const response = await axios.get('/api/v1/catalog/books', { params })
+    const response = await api.get('/catalog/books', { params })
     books.value = response.data.data
     pagination.value = response.data.pagination
   } catch (error) {
@@ -408,6 +407,7 @@ function changePage(page) {
 function editBook(book) {
   editingBook.value = book
   imagePreview.value = book.coverImage || null
+  authorsInput.value = Array.isArray(book.authors) ? book.authors.join(', ') : ''
   formData.value = {
     title: book.title,
     authors: book.authors || [],
@@ -432,12 +432,18 @@ function editBook(book) {
 async function saveBook() {
   submitting.value = true
   try {
+    // Convert authorsInput string to array
+    formData.value.authors = authorsInput.value
+      .split(',')
+      .map(author => author.trim())
+      .filter(author => author.length > 0)
+    
     let bookId
     if (editingBook.value) {
-      const response = await axios.put(`/api/v1/catalog/books/${editingBook.value._id}`, formData.value)
+      const response = await api.put(`/catalog/books/${editingBook.value._id}`, formData.value)
       bookId = editingBook.value._id
     } else {
-      const response = await axios.post('/api/v1/catalog/books', formData.value)
+      const response = await api.post('/catalog/books', formData.value)
       bookId = response.data.data._id
     }
     
@@ -488,7 +494,7 @@ async function uploadCoverImage(bookId) {
     const formData = new FormData()
     formData.append('cover', imageFile.value)
     
-    await axios.put(`/api/v1/catalog/books/${bookId}/photo`, formData, {
+    await api.put(`/catalog/books/${bookId}/photo`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -512,7 +518,7 @@ async function deleteBook(bookId) {
   if (!confirm('Are you sure you want to delete this book?')) return
   
   try {
-    await axios.delete(`/api/v1/catalog/books/${bookId}`)
+    await api.delete(`/catalog/books/${bookId}`)
     fetchBooks()
     alert('Book deleted successfully!')
   } catch (error) {
