@@ -7,17 +7,17 @@ const ErrorResponse = require('../utils/errorResponse');
 // @route   GET /api/v1/fines
 // @access  Private/Librarian/Admin
 exports.getFines = asyncHandler(async (req, res, next) => {
-  const { page = 1, limit = 20, status, userId } = req.query;
+  const { page = 1, limit = 1000, status, userId } = req.query;
   
   let query = {};
   if (status) query.status = status;
   if (userId) query.user = userId;
   
   const fines = await Fine.find(query)
-    .populate('user', 'firstName lastName email membershipId')
+    .populate('user', 'firstName lastName email studentId role')
     .populate({
       path: 'transaction',
-      populate: { path: 'book', select: 'title authors isbn' }
+      populate: { path: 'book', select: 'title author coverImage isbn' }
     })
     .limit(limit * 1)
     .skip((page - 1) * limit)
@@ -64,7 +64,7 @@ exports.getFine = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/fines/:id/pay
 // @access  Private/Librarian
 exports.payFine = asyncHandler(async (req, res, next) => {
-  const { amount, paymentMethod, transactionReference } = req.body;
+  const { amount, paymentMethod, transactionReference, notes } = req.body;
   
   let fine = await Fine.findById(req.params.id);
   
@@ -76,23 +76,32 @@ exports.payFine = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Fine already paid', 400));
   }
   
-  if (amount <= 0) {
+  // If no amount specified, pay full amount
+  const paymentAmount = amount || fine.amountDue;
+  
+  if (paymentAmount <= 0) {
     return next(new ErrorResponse('Payment amount must be greater than zero', 400));
   }
   
-  if (amount > fine.amountDue) {
+  if (paymentAmount > fine.amountDue) {
     return next(new ErrorResponse('Payment amount exceeds amount due', 400));
   }
   
   // Process payment
-  fine.processPayment(amount, paymentMethod, transactionReference);
+  fine.processPayment(paymentAmount, paymentMethod || 'cash', transactionReference);
   fine.processedBy = req.user.id;
+  fine.paidDate = new Date();
+  
+  if (notes) {
+    fine.notes = notes;
+  }
+  
   await fine.save();
   
   // Update user's total fines
   if (fine.status === 'paid') {
     await User.findByIdAndUpdate(fine.user, {
-      $inc: { totalFines: -amount }
+      $inc: { totalFines: -paymentAmount }
     });
   }
   

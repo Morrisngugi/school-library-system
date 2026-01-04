@@ -31,12 +31,20 @@ const fineSchema = new mongoose.Schema({
     type: String,
     maxlength: 500
   },
+  notes: {
+    type: String,
+    maxlength: 500
+  },
+  assessedDate: {
+    type: Date,
+    default: Date.now
+  },
   
   // Payment Status
   status: {
     type: String,
-    enum: ['pending', 'partial', 'paid', 'waived'],
-    default: 'pending'
+    enum: ['unpaid', 'partial', 'paid', 'waived'],
+    default: 'unpaid'
   },
   amountPaid: {
     type: Number,
@@ -53,7 +61,10 @@ const fineSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['cash', 'mpesa', 'bank', 'card', 'waived'],
+    enum: ['cash', 'card', 'mobile_money', 'bank_transfer', 'waived'],
+  },
+  paidDate: {
+    type: Date
   },
   transactionReference: {
     type: String

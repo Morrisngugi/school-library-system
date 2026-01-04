@@ -27,6 +27,6 @@ router
   .get(getFine);
 
 router.post('/:id/pay', authorize('admin', 'librarian'), payFine);
-router.put('/:id/waive', authorize('admin'), waiveFine);
+router.put('/:id/waive', authorize('admin', 'librarian'), waiveFine);
 
 module.exports = router;
