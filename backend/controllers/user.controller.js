@@ -64,13 +64,69 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/users
 // @access  Private/Admin/Librarian
 exports.createUser = asyncHandler(async (req, res, next) => {
-  // Generate membership ID
-  const membershipId = `MEM${Date.now()}${Math.floor(Math.random() * 1000)}`;
+  // Generate auto-incremental membership ID
+  // Find the last user to get the highest membership ID
+  const lastUser = await User.findOne().sort({ createdAt: -1 }).select('membershipId');
+  
+  let membershipNumber = 1;
+  if (lastUser && lastUser.membershipId) {
+    // Extract the number from the last membership ID (e.g., "MEM0042" -> 42)
+    const lastNumber = parseInt(lastUser.membershipId.replace('MEM', ''));
+    if (!isNaN(lastNumber)) {
+      membershipNumber = lastNumber + 1;
+    }
+  }
+  
+  // Format with leading zeros (e.g., 1 -> "MEM0001", 42 -> "MEM0042")
+  const membershipId = `MEM${membershipNumber.toString().padStart(4, '0')}`;
+  
+  // Store the plain password before hashing
+  const plainPassword = req.body.password;
   
   const user = await User.create({
     ...req.body,
     membershipId
   });
+  
+  // Send welcome email with credentials
+  try {
+    const { sendEmail } = require('../utils/email');
+    
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4F46E5;">Welcome to School Library System</h2>
+        <p>Dear ${user.firstName} ${user.lastName},</p>
+        <p>Your account has been successfully created. Below are your login credentials:</p>
+        
+        <div style="background-color: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 10px 0;"><strong>Email:</strong> ${user.email}</p>
+          <p style="margin: 10px 0;"><strong>Password:</strong> ${plainPassword}</p>
+          <p style="margin: 10px 0;"><strong>Membership ID:</strong> ${membershipId}</p>
+          <p style="margin: 10px 0;"><strong>Role:</strong> ${user.role}</p>
+        </div>
+        
+        <p style="color: #DC2626; font-weight: bold;">⚠️ Important: Please change your password after your first login.</p>
+        
+        <p>You can access the library system at: <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}" style="color: #4F46E5;">${process.env.CLIENT_URL || 'http://localhost:3000'}</a></p>
+        
+        <p>If you have any questions or need assistance, please contact the library administration.</p>
+        
+        <p>Best regards,<br>School Library Team</p>
+      </div>
+    `;
+    
+    await sendEmail({
+      to: user.email,
+      subject: 'Welcome to School Library System - Your Account Credentials',
+      html: emailHtml,
+      text: `Welcome to School Library System\n\nDear ${user.firstName} ${user.lastName},\n\nYour account has been created successfully.\n\nEmail: ${user.email}\nPassword: ${plainPassword}\nMembership ID: ${membershipId}\nRole: ${user.role}\n\nPlease change your password after your first login.\n\nBest regards,\nSchool Library Team`
+    });
+    
+    console.log(`Welcome email sent to ${user.email}`);
+  } catch (emailError) {
+    console.error('Failed to send welcome email:', emailError);
+    // Don't fail the user creation if email fails
+  }
   
   res.status(201).json({
     success: true,

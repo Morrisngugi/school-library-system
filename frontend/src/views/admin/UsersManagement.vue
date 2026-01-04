@@ -77,7 +77,7 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div>
-                  <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
+                  <div class="text-sm font-medium text-gray-900">{{ `${user.firstName} ${user.lastName}` }}</div>
                   <div class="text-sm text-gray-500">{{ user.membershipId }}</div>
                 </div>
               </div>
@@ -150,9 +150,15 @@
               </h3>
               
               <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700">Full Name *</label>
-                  <input v-model="formData.name" required type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">First Name *</label>
+                    <input v-model="formData.firstName" required type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Last Name *</label>
+                    <input v-model="formData.lastName" required type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
                 </div>
 
                 <div>
@@ -241,7 +247,8 @@ const pagination = ref({
 })
 
 const formData = ref({
-  name: '',
+  firstName: '',
+  lastName: '',
   email: '',
   password: '',
   phone: '',
@@ -296,7 +303,8 @@ function changePage(page) {
 function editUser(user) {
   editingUser.value = user
   formData.value = {
-    name: user.name,
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
     email: user.email,
     phone: user.phone,
     role: user.role,
@@ -343,7 +351,8 @@ function closeModal() {
   showCreateModal.value = false
   editingUser.value = null
   formData.value = {
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     phone: '',
