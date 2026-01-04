@@ -8,6 +8,23 @@ const transactionSchema = new mongoose.Schema({
     required: true
   },
   
+  // Approval Status (for user-initiated requests)
+  approvalStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected', 'not_required'],
+    default: 'not_required'
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  approvedAt: {
+    type: Date
+  },
+  rejectionReason: {
+    type: String
+  },
+  
   // User and Book Information
   user: {
     type: mongoose.Schema.Types.ObjectId,

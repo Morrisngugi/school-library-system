@@ -53,13 +53,14 @@
                   {{ book.availableCopies }} of {{ book.totalCopies }} copies available
                 </p>
               </div>
-              <div v-if="isAuthenticated" class="space-x-2">
+              <div v-if="isAuthenticated && (authStore.isStudent || authStore.isTeacher)" class="space-x-2">
                 <button
                   v-if="book.availableCopies > 0"
+                  @click="handleRequestBorrow"
                   class="btn btn-primary"
-                  disabled
+                  :disabled="requesting"
                 >
-                  Visit Library to Borrow
+                  {{ requesting ? 'Requesting...' : 'Request to Borrow' }}
                 </button>
                 <button
                   v-else
@@ -69,6 +70,9 @@
                 >
                   {{ reserving ? 'Reserving...' : 'Reserve Book' }}
                 </button>
+              </div>
+              <div v-else-if="isAuthenticated" class="text-sm text-gray-600">
+                Visit the circulation desk to borrow
               </div>
             </div>
           </div>
@@ -157,10 +161,29 @@ const loading = computed(() => catalogStore.loading)
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const reserving = ref(false)
+const requesting = ref(false)
 
 onMounted(async () => {
   await catalogStore.fetchBook(route.params.id)
 })
+
+const handleRequestBorrow = async () => {
+  if (!isAuthenticated.value) {
+    router.push('/login')
+    return
+  }
+
+  try {
+    requesting.value = true
+    await circulationStore.requestBorrow(book.value._id)
+    alert('Borrow request submitted successfully! Please wait for librarian approval.')
+    router.push('/dashboard/my-loans')
+  } catch (error) {
+    alert(error.response?.data?.error || 'Failed to submit borrow request')
+  } finally {
+    requesting.value = false
+  }
+}
 
 const handleReserve = async () => {
   if (!isAuthenticated.value) {

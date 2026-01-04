@@ -69,7 +69,10 @@ const userSchema = new mongoose.Schema({
   // Borrowing Privileges
   maxBooksAllowed: {
     type: Number,
-    default: 3
+    default: function() {
+      // Teachers can borrow 5 books, students 3 books
+      return this.role === 'teacher' ? 5 : 3;
+    }
   },
   currentBooksCount: {
     type: Number,

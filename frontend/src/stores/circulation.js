@@ -122,6 +122,19 @@ export const useCirculationStore = defineStore('circulation', () => {
     }
   }
 
+  const requestBorrow = async (bookId, requestedDueDate = null) => {
+    try {
+      loading.value = true
+      const response = await circulationService.requestBorrow({ bookId, requestedDueDate })
+      return response
+    } catch (err) {
+      error.value = err.response?.data?.error || 'Borrow request failed'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     myLoans,
     myReservations,
@@ -135,6 +148,7 @@ export const useCirculationStore = defineStore('circulation', () => {
     renewBook,
     reserveBook,
     cancelReservation,
-    fetchAllTransactions
+    fetchAllTransactions,
+    requestBorrow
   }
 })

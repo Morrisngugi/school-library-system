@@ -132,6 +132,26 @@ export const circulationService = {
   async getAllTransactions(params) {
     const response = await api.get('/circulation/transactions', { params })
     return response.data
+  },
+
+  async requestBorrow(data) {
+    const response = await api.post('/circulation/request-borrow', data)
+    return response.data
+  },
+
+  async getPendingRequests(params) {
+    const response = await api.get('/circulation/pending-requests', { params })
+    return response.data
+  },
+
+  async approveBorrowRequest(transactionId) {
+    const response = await api.put(`/circulation/approve/${transactionId}`)
+    return response.data
+  },
+
+  async rejectBorrowRequest(transactionId, reason) {
+    const response = await api.put(`/circulation/reject/${transactionId}`, { reason })
+    return response.data
   }
 }
 
