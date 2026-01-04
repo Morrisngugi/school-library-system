@@ -122,7 +122,7 @@ const user = computed(() => authStore.user)
 
 onMounted(async () => {
   await catalogStore.fetchBooks()
-  await catalogStore.fetchsubjects()
+  await catalogStore.fetchSubjects()
 })
 
 const handleSearch = async () => {

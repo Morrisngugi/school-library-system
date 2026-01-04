@@ -27,13 +27,22 @@ const cronJobs = require('./utils/cronJobs');
 // Initialize express app
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware with proper CSP for images
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "http://localhost:5000", "http://localhost:3000"],
+    },
+  },
+}));
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
+  origin: [process.env.CLIENT_URL || 'http://localhost:3000', 'http://localhost:3000'],
+  credentials: true,
+  exposedHeaders: ['Content-Length', 'Content-Type']
 }));
 
 // Body parser middleware
