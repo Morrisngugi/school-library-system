@@ -90,6 +90,9 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Check auth on store initialization
+  checkAuth()
+
   return {
     user,
     token,

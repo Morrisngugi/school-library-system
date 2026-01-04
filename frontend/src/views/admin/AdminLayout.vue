@@ -185,7 +185,12 @@ const router = useRouter()
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
 
-const userName = computed(() => authStore.user?.name || 'Admin User')
+const userName = computed(() => {
+  if (authStore.user?.firstName && authStore.user?.lastName) {
+    return `${authStore.user.firstName} ${authStore.user.lastName}`
+  }
+  return authStore.user?.name || 'Admin User'
+})
 const userEmail = computed(() => authStore.user?.email || 'admin@library.com')
 const userRole = computed(() => authStore.user?.role || 'admin')
 const userInitials = computed(() => {

@@ -219,7 +219,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '@/services/api'
 
 const users = ref([])
 const loading = ref(false)
@@ -266,7 +266,7 @@ async function fetchUsers() {
       ...(filters.value.status && { status: filters.value.status })
     }
     
-    const response = await axios.get('/api/v1/users', { params })
+    const response = await api.get('/users', { params })
     users.value = response.data.data
     pagination.value = response.data.pagination
   } catch (error) {
@@ -311,9 +311,9 @@ async function saveUser() {
   submitting.value = true
   try {
     if (editingUser.value) {
-      await axios.put(`/api/v1/users/${editingUser.value._id}`, formData.value)
+      await api.put(`/users/${editingUser.value._id}`, formData.value)
     } else {
-      await axios.post('/api/v1/users', formData.value)
+      await api.post('/users', formData.value)
     }
     closeModal()
     fetchUsers()
@@ -330,7 +330,7 @@ async function deleteUser(userId) {
   if (!confirm('Are you sure you want to delete this user?')) return
   
   try {
-    await axios.delete(`/api/v1/users/${userId}`)
+    await api.delete(`/users/${userId}`)
     fetchUsers()
     alert('User deleted successfully!')
   } catch (error) {
