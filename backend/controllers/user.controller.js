@@ -65,8 +65,10 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin/Librarian
 exports.createUser = asyncHandler(async (req, res, next) => {
   // Generate auto-incremental membership ID
-  // Find the last user to get the highest membership ID
-  const lastUser = await User.findOne().sort({ createdAt: -1 }).select('membershipId');
+  // Find the last user with MEM membership ID pattern to get the highest number
+  const lastUser = await User.findOne({ membershipId: /^MEM\d+$/ })
+    .sort({ createdAt: -1 })
+    .select('membershipId');
   
   let membershipNumber = 1;
   if (lastUser && lastUser.membershipId) {
@@ -77,8 +79,8 @@ exports.createUser = asyncHandler(async (req, res, next) => {
     }
   }
   
-  // Format with leading zeros (e.g., 1 -> "MEM0001", 42 -> "MEM0042")
-  const membershipId = `MEM${membershipNumber.toString().padStart(4, '0')}`;
+  // Format with leading zeros (e.g., 1 -> "MEM001", 42 -> "MEM042", 999 -> "MEM999")
+  const membershipId = `MEM${membershipNumber.toString().padStart(3, '0')}`;
   
   // Store the plain password before hashing
   const plainPassword = req.body.password;
