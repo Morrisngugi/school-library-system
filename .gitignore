@@ -2,15 +2,19 @@
 
 # Environment files (never commit these!)
 .env
+.env.*
 .env.local
+.env.development
 .env.development.local
+.env.production
 .env.production.local
 backend/.env
+docker-compose.yml
+docker-compose.override.yml
 
-# Keep example files
+# Keep example files only
 !.env.example
-!.env.development
-!.env.production
+!backend/.env.example
 
 # Dependencies
 node_modules/
